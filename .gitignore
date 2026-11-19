@@ -5,3 +5,4 @@ out/
 *.ini
 .vs/
 .vscode/
+third_party/dlssnr/*.dll

@@ -1110,7 +1110,7 @@ std::string problem_source(const std::string &tag, i18n::Lang lang = i18n::Lang:
 		{ "game", S::src_game }, { "scale", S::src_scale }, { "files", S::src_files }, { "crash", S::src_crash },
 		};
 	static const struct { const char *key, *name; } kProper[] = {
-		{ "dlss", "DLSS" }, { "vsr", "RTX VSR" }, { "d3d12", "Direct3D 12" }, { "hud", "HUD" }, { "aeonsr", "Aeon SR" },
+		{ "dlss", "DLSS" }, { "vsr", "RTX VSR" }, { "d3d12", "Direct3D 12" }, { "hud", "HUD" }, { "aeonsr", "AlexaInc Enhancer" },
 	};
 	for (const auto &n : kNames)
 		if (key == n.key)
@@ -1128,7 +1128,7 @@ std::string problem_source(const std::string &tag, i18n::Lang lang = i18n::Lang:
 	for (const auto &n : kOpenings)
 		if (key.rfind(n.prefix, 0) == 0)
 			return i18n::text(lang, n.name);
-	return "Aeon SR";
+	return "AlexaInc Enhancer";
 }
 
 std::vector<DiagEntry> recent_problems(const PanelState &state, const Settings &settings)
@@ -1563,7 +1563,7 @@ void draw_osd(const PanelState &state, const Settings &settings)
 	ui::osd_mark();
 	ImGui::SameLine(0.0f, ImGui::CalcTextSize(" ").x);
 	ImGui::AlignTextToFramePadding();
-	ImGui::TextUnformatted("Aeon SR");
+	ImGui::TextUnformatted("AlexaInc Enhancer");
 	ImGui::SameLine(0.0f, ImGui::CalcTextSize("  ").x);
 	if (no_upscaler) {
 		ImGui::AlignTextToFramePadding();

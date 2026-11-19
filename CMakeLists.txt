@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(AeonSR_GraphicsEnhancer VERSION 1.3.2 LANGUAGES C CXX)
+project(AlexaInc_Enhancer VERSION 1.0.0 LANGUAGES C CXX)
 
 set(AEONSR_VERSION_STR "${PROJECT_VERSION}")
 
@@ -35,11 +35,23 @@ set(AEONSR_RUNTIME_FILES
   "${AEONSR_FFX_SDK}/Kits/FidelityFX/signedbin/amd_fidelityfx_upscaler_dx12.dll"
   "${AEONSR_FFX_SDK}/Kits/FidelityFX/signedbin/amd_fidelityfx_loader_dx12.dll"
   "${AEONSR_DLSS_SDK}/lib/Windows_x86_64/rel/nvngx_dlssg.dll"
+
   "${AEONSR_XESS_SDK}/bin/libxess_fg.dll"
   "${AEONSR_XESS_SDK}/bin/libxell.dll"
   "${AEONSR_FFX_SDK}/Kits/FidelityFX/signedbin/amd_fidelityfx_framegeneration_dx12.dll")
+# DLSS Neural Rendering runtime (nvngx_dlssnr.dll). It is not part of any public
+# SDK: it is dropped in here out of band (CI downloads it from the signed release
+# asset, a user can copy it beside the add-on). Optional, so a source build works
+# without it.
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/third_party/dlssnr/nvngx_dlssnr.dll)
+  list(APPEND AEONSR_RUNTIME_FILES ${CMAKE_CURRENT_SOURCE_DIR}/third_party/dlssnr/nvngx_dlssnr.dll)
+  message(STATUS DLSS Neural Rendering runtime: bundled)
+else()
+  message(STATUS No nvngx_dlssnr.dll: neural rendering will ask for the runtime at run time)
+endif()
+
 set(AEONSR_LICENSE_FILES
-  "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE|AeonSR_LICENSE.txt"
+  "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE|AlexaInc_Enhancer_LICENSE.txt"
   "${CMAKE_CURRENT_SOURCE_DIR}/THIRD-PARTY-NOTICES.md|THIRD-PARTY-NOTICES.md"
   "${AEONSR_DLSS_SDK}/LICENSE.txt|NVIDIA_DLSS_LICENSE.txt"
   "${AEONSR_XESS_SDK}/LICENSE.txt|Intel_XeSS_LICENSE.txt"
@@ -453,7 +465,7 @@ function(aeonsr_version_resource target filename description filetype)
   set(AEONSR_RC_DESCRIPTION "${description}")
   set(AEONSR_RC_FILETYPE "${filetype}")
   if(filetype STREQUAL "VFT_APP")
-    set(AEONSR_RC_ICON "1 ICON \"${CMAKE_CURRENT_SOURCE_DIR}/package/AeonSR.ico\"")
+    set(AEONSR_RC_ICON "1 ICON \"${CMAKE_CURRENT_SOURCE_DIR}/package/AlexaInc.ico\"")
   else()
     set(AEONSR_RC_ICON "")
   endif()

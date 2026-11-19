@@ -249,7 +249,7 @@ void mirror_to_host_log(DiagLevel level, const char *message)
 
 }
 
-extern "C" __declspec(dllexport) const char *NAME = "Aeon SR";
+extern "C" __declspec(dllexport) const char *NAME = "AlexaInc Enhancer";
 extern "C" __declspec(dllexport) const char *DESCRIPTION =
 	"Multi-upscaler AA (DLSS / FSR / XeSS) with built-in optical flow, "
 	"on Direct3D 8, 9, 10, 11 and 12, OpenGL and Vulkan.";
@@ -347,7 +347,7 @@ extern "C" __declspec(dllexport) bool AddonInit(HMODULE addon_module, HMODULE re
 		register_pipeline_trace(a->settings().pipeline_trace_key, dir);
 	}
 
-	reshade::register_overlay("Aeon SR", draw_main_overlay);
+	reshade::register_overlay("AlexaInc Enhancer", draw_main_overlay);
 	reshade::register_overlay("OSD", draw_osd);
 
 	return true;
