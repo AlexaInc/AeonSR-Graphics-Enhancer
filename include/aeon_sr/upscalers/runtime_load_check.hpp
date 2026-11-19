@@ -143,15 +143,15 @@ inline void reset_runtime_load_redirected() noexcept
 inline std::wstring runtime_hooked_error(const std::wstring &path, const char *name)
 {
 	return L"another program in this game hooked " + std::wstring(name, name + strlen(name)) + L" in " + path +
-		L" (OptiScaler does this to take a runtime's calls over), so Aeon SR does not use it in the game's "
-		L"process; its upscalers move to AeonSRHost.exe, apart from it";
+		L" (OptiScaler does this to take a runtime's calls over), so AlexaInc Enhancer does not use it in the game's "
+		L"process; its upscalers move to AlexaIncEnhancerHost.exe, apart from it";
 }
 
 inline std::wstring runtime_load_redirect_error(const std::wstring &asked, const std::wstring &got)
 {
 	return L"another program in this game handed the load of " + asked + L" a different file, " + got +
-		L" (OptiScaler does this to take a runtime's calls over), so Aeon SR does not use it in the game's "
-		L"process; its upscalers move to AeonSRHost.exe, apart from it";
+		L" (OptiScaler does this to take a runtime's calls over), so AlexaInc Enhancer does not use it in the game's "
+		L"process; its upscalers move to AlexaIncEnhancerHost.exe, apart from it";
 }
 
 template <typename Fn>

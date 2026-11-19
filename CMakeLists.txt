@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(AlexaInc_Enhancer VERSION 1.0.1 LANGUAGES C CXX)
+project(AlexaInc_Enhancer VERSION 1.0.2 LANGUAGES C CXX)
 
 set(AEONSR_VERSION_STR "${PROJECT_VERSION}")
 
@@ -303,7 +303,7 @@ else()
   target_compile_definitions(AeonSR PRIVATE AEONSR_NO_VENDOR=1)
 endif()
 
-set_target_properties(AeonSR PROPERTIES OUTPUT_NAME "AeonSR" PREFIX "" SUFFIX "${AEONSR_ADDON_EXT}")
+set_target_properties(AeonSR PROPERTIES OUTPUT_NAME "AlexaIncEnhancer" PREFIX "" SUFFIX "${AEONSR_ADDON_EXT}")
 
 add_dependencies(AeonSR aeon_flow_baked)
 target_include_directories(AeonSR PRIVATE
@@ -473,7 +473,7 @@ function(aeonsr_version_resource target filename description filetype)
   configure_file("${CMAKE_CURRENT_SOURCE_DIR}/src/core/version.rc.in" "${rc}" @ONLY)
   target_sources(${target} PRIVATE "${rc}")
 endfunction()
-aeonsr_version_resource(AeonSR "AeonSR${AEONSR_ADDON_EXT}" "Aeon SR upscaling add-on for ReShade" VFT_DLL)
-aeonsr_version_resource(AeonSR_NgxShim "nvngx.dll" "Aeon SR forwarder for the DLSS neural rendering runtime" VFT_DLL)
-aeonsr_version_resource(AeonSRHost "AeonSRHost.exe" "Aeon SR engine host for 32-bit games" VFT_APP)
-aeonsr_version_resource(AeonSRPrebuild "AeonSRPrebuild.exe" "Aeon SR shader pipeline prebuild" VFT_APP)
+aeonsr_version_resource(AeonSR "AeonSR${AEONSR_ADDON_EXT}" "AlexaInc Enhancer add-on for ReShade" VFT_DLL)
+aeonsr_version_resource(AeonSR_NgxShim "nvngx.dll" "AlexaInc Enhancer forwarder for the DLSS neural rendering runtime" VFT_DLL)
+aeonsr_version_resource(AeonSRHost "AlexaIncEnhancerHost.exe" "AlexaInc Enhancer engine host for 32-bit games" VFT_APP)
+aeonsr_version_resource(AeonSRPrebuild "AlexaIncEnhancerPrebuild.exe" "AlexaInc Enhancer shader pipeline prebuild" VFT_APP)

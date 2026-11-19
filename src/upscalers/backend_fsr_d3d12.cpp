@@ -475,7 +475,7 @@ bool Fsr4D3D12Backend::build_context(ID3D12Device *device, uint32_t w, uint32_t 
 	if (result == Warm::Missed) {
 		missing = pso_cache_->st.missed;
 		diag_logf(DiagLevel::Info, "upscaler",
-			L"FSR: %u of its pipelines are not in the shared cache yet; AeonSRPrebuild.exe is "
+			L"FSR: %u of its pipelines are not in the shared cache yet; AlexaIncEnhancerPrebuild.exe is "
 			L"building them outside the game (up to a minute, once per driver and resolution)",
 			missing);
 		if (!rebuild(true))
@@ -509,7 +509,7 @@ bool Fsr4D3D12Backend::build_context(ID3D12Device *device, uint32_t w, uint32_t 
 	const FsrPipelineCacheStats cs = pso_cache_ != nullptr ? pso_cache_->st : FsrPipelineCacheStats{};
 	if (missing != 0) {
 		diag_logf(prebuild_code == 0 ? DiagLevel::Info : DiagLevel::Warn, "upscaler",
-			L"FSR: AeonSRPrebuild.exe %s after %.0f ms%s",
+			L"FSR: AlexaIncEnhancerPrebuild.exe %s after %.0f ms%s",
 			prebuild_code == 0 ? L"built the missing pipelines" : prebuild_failure(prebuild_code),
 			prebuild_ms, prebuild_code == 0 ? L"" : L"; the first FSR frame will build them, "
 				L"and the game stands still while it does");
@@ -573,7 +573,7 @@ int Fsr4D3D12Backend::run_prebuild(ID3D12Device *device, const FsrWarmupDesc &d,
 	*ms = 0.0;
 	if (cache_file.empty())
 		return kPrebuildNoCache;
-	const std::wstring exe = join_path(build_addon_dir_, L"AeonSRPrebuild.exe");
+	const std::wstring exe = join_path(build_addon_dir_, L"AlexaIncEnhancerPrebuild.exe");
 	if (!file_exists_w(exe))
 		return kPrebuildMissing;
 
