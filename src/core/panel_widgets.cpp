@@ -655,7 +655,17 @@ void pill_at(ImDrawList *dl, const ImVec2 &p, const ImVec4 &colour, const char *
 	const float k = unit();
 	char buf[512];
 	const char *t = pill_caption(text, buf);
-	const ImVec2 s = pill_size(text, max_w);
+	// auto-fit (v1.0.3): a pill never runs past the card edge when the window is
+	// resized narrow -- the status word is ellipsised and the pill shrinks with
+	// it, instead of being clipped by the panel border.
+	const char *shown = t;
+	{
+		const float room = max_w > 0.0f ? std::min(max_w, avail_width()) : avail_width();
+		const float text_room = room - pill_lead() - 10.0f * k;
+		if (text_room > 0.0f && ImGui::CalcTextSize(t).x > text_room)
+			shown = ellipsised(t, text_room + ImGui::GetStyle().FramePadding.x * 2.0f);
+	}
+	const ImVec2 s = pill_size(shown, max_w);
 	const float dot = 3.0f * k;
 	const float r = pill_line() * 0.5f;
 	const ImVec2 q(p.x + s.x, p.y + s.y);
@@ -663,9 +673,9 @@ void pill_at(ImDrawList *dl, const ImVec2 &p, const ImVec4 &colour, const char *
 	dl->AddRectFilled(p, q, col(loud ? with_alpha(colour, kPillFill) : with_alpha(g_pal.text, kCalmFill)), r);
 	dl->AddRect(p, q, col(loud ? with_alpha(colour, kPillEdge) : with_alpha(g_pal.text, kCalmEdge)), r, 0, hairline());
 	status_dot(dl, ImVec2(p.x + 8.0f * k + dot + (g_icons ? 1.0f * k : 0.0f), p.y + r), colour);
-	const Span span{ t, pill_text_colour(colour) };
+	const Span span{ shown, pill_text_colour(colour) };
 	Layout l;
-	lay_out(&span, 1, max_w > 0.0f ? pill_wrap(t, max_w) : 1.0e9f, l);
+	lay_out(&span, 1, max_w > 0.0f ? pill_wrap(shown, max_w) : 1.0e9f, l);
 	draw_layout(dl, l, ImVec2(p.x + pill_lead(), p.y + 3.0f * k), &span, ImGui::GetTextLineHeight());
 }
 
@@ -1966,9 +1976,16 @@ void subsection(const char *title, const char *aside)
 	bool aside_under = false;
 	if (aside != nullptr && *aside != '\0') {
 		const float aw = ImGui::CalcTextSize(aside).x;
+		const float aside_room = x1 - x0 - 10.0f * k;
 		if (x1 - aw - 10.0f * k > x0 + 20.0f * k) {
 			dl->AddText(ImVec2(x1 - aw, a.y), col(ink(g_pal.muted)), aside);
 			x1 -= aw + 10.0f * k;
+		} else if (aside_room > ImGui::CalcTextSize("...").x + 20.0f * k) {
+			// auto-fit: shorten the aside, keep it on the title line
+			const char *fit = ellipsised(aside, aside_room);
+			const float fw = ImGui::CalcTextSize(fit).x;
+			dl->AddText(ImVec2(x1 - fw, a.y), col(ink(g_pal.muted)), fit);
+			x1 -= fw + 10.0f * k;
 		} else {
 			aside_under = true;
 		}
@@ -2229,10 +2246,28 @@ bool slider_int(const char *label, int *value, int min, int max, const char *for
 
 bool button(const char *icon_glyph, const char *label)
 {
-	if (!g_icons || icon_glyph == nullptr)
-		return ImGui::Button(label);
+	// Auto-fit: a button that does not fit its row is narrowed to the row and
+	// its label is ellipsised, so nothing is ever clipped by the panel edge.
+	// The id stays the full label, so the click target and the tooltips of the
+	// caller keep working while the visible text shrinks.
+	const float natural = button_width(icon_glyph, label);
+	const float w = fit_width(natural);
+	const bool squeezed = w + 0.5f < natural;
 	char text[1024];
-	std::snprintf(text, sizeof(text), "%s  %s###%s", icon_glyph, label, label);
+	const char *shown = label;
+	if (squeezed) {
+		// the icon would eat the little space there is: drop it and shorten
+		const float text_room = w - ImGui::GetStyle().FramePadding.x * 2.0f;
+		shown = ellipsised(label, w);
+		(void)text_room;
+		std::snprintf(text, sizeof(text), "%s###%s", shown, label);
+	} else if (!g_icons || icon_glyph == nullptr) {
+		return ImGui::Button(label);
+	} else {
+		std::snprintf(text, sizeof(text), "%s  %s###%s", icon_glyph, label, label);
+	}
+	if (squeezed)
+		return ImGui::Button(text, ImVec2(w, 0.0f));
 	return ImGui::Button(text);
 }
 
@@ -2250,6 +2285,53 @@ void same_line_if_fits(float w)
 	const float gap = ImGui::GetStyle().ItemSpacing.x;
 	if (ImGui::GetItemRectMax().x + gap + w <= right)
 		ImGui::SameLine(0.0f, gap);
+}
+
+// ---------------------------------------------------------------------------
+// Auto-fit (v1.0.3): a control is never wider than the space that is really
+// left on its row, and a label that does not fit is ellipsised instead of
+// being cut off by the panel edge. This is what keeps every button readable
+// when the ReShade window is resized small.
+// ---------------------------------------------------------------------------
+float fit_width(float wanted)
+{
+	const float right = ImGui::GetCursorScreenPos().x + avail_width();
+	const float room = std::max(0.0f, right - ImGui::GetCursorScreenPos().x);
+	if (wanted <= room)
+		return wanted;
+	const float min_w = std::min(ImGui::GetFrameHeight() * 1.25f, room);
+	return std::max(min_w, room);
+}
+
+const char *ellipsised(const char *label, float width)
+{
+	static char buf[256];
+	static const char *last_label = nullptr;
+	static float last_width = -1.0f;
+	if (label == last_label && width == last_width)
+		return buf;
+	last_label = label;
+	last_width = width;
+	if (label == nullptr)
+		return buf[0] = '\0', buf;
+	const char *end = visible_end(label);
+	const float room = width - ImGui::GetStyle().FramePadding.x * 2.0f;
+	if (ImGui::CalcTextSize(label, end).x <= room) {
+		std::snprintf(buf, sizeof(buf), "%.*s", static_cast<int>(end - label), label);
+		return buf;
+	}
+	const float dot = ImGui::CalcTextSize("...").x;
+	const char *cut = label;
+	float used = 0.0f;
+	while (cut < end) {
+		const float cw = ImGui::CalcTextSize(cut, cut + 1).x;
+		if (used + cw + dot > room)
+			break;
+		used += cw;
+		++cut;
+	}
+	std::snprintf(buf, sizeof(buf), "%.*s...", static_cast<int>(cut - label), label);
+	return buf;
 }
 
 bool segment(const char *label, bool selected, float width, ImDrawFlags corners, bool divider, Brand brand,
@@ -2307,7 +2389,15 @@ bool segment(const char *label, bool selected, float width, ImDrawFlags corners,
 	else if (selected && g_dim == 0 && g_dark)
 		dl->AddRectFilled(ImVec2(a.x + ir, a.y + t), ImVec2(b.x - ir, a.y + t * 2.0f),
 			col(ImVec4(1.0f, 1.0f, 1.0f, 0.10f)));
+	// never let a label run out of its cell: shorten it to the space available
 	const char *end = visible_end(label);
+	if (ImGui::CalcTextSize(label, end).x > width - 6.0f * k) {
+		const float avail = std::max(1.0f, width - 6.0f * k);
+		label = ellipsised(label, avail + ImGui::GetStyle().FramePadding.x * 2.0f);
+		end = label + std::strlen(label);
+	}
+	// (visible_end() only strips a "##" id suffix, so the ellipsised copy is
+	// already safe to draw with the same end pointer.)
 	const ImVec2 s = ImGui::CalcTextSize(label, end);
 	const ImVec4 tc = maker ? readable_on(*tint)
 		: chosen ? g_chosen_ink

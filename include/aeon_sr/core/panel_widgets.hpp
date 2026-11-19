@@ -112,6 +112,9 @@ bool slider_int(const char *label, int *value, int min, int max, const char *for
 bool button(const char *icon, const char *label);
 float button_width(const char *icon, const char *label);
 void same_line_if_fits(float w);
+// auto-fit helpers (v1.0.3): narrow a control to the row, shorten its label
+float fit_width(float wanted);
+const char *ellipsised(const char *label, float width);
 
 bool segment(const char *label, bool selected, float width, ImDrawFlags corners, bool divider,
 	Brand brand = Brand::Neutral, bool lit = true, bool framed = true, bool halo = false);
