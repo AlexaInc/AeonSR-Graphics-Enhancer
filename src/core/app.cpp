@@ -4112,15 +4112,18 @@ void App::draw_overlay(reshade::api::effect_runtime *runtime)
 	const PanelState state = panel_state(true);
 	PanelActions actions;
 
-	// ReShade tab layout (v1.0.1): give the panel the size of the overlay window
-	// it is being drawn into, so it lays itself out there instead of opening a
-	// window of its own next to ReShade.
+	// ReShade tab layout (v1.0.1): give the panel the size of the overlay area it
+	// is drawn into, so it lays itself out there instead of opening a window of
+	// its own next to ReShade. The size comes from ReShade (buffer size), because
+	// ImGui::GetMainViewport/GetCurrentContext are not exported by the ImGui that
+	// ReShade links the add-on against.
 	float host_w = 0.0f, host_h = 0.0f;
-	if (ImGui::GetCurrentContext() != nullptr) {
-		const ImGuiViewport *const vp = ImGui::GetMainViewport();
-		if (vp != nullptr && vp->WorkSize.x > 1.0f && vp->WorkSize.y > 1.0f) {
-			host_w = std::min(vp->WorkSize.x * 0.98f, std::max(320.0f, vp->WorkSize.x - 24.0f));
-			host_h = std::min(vp->WorkSize.y * 0.94f, std::max(240.0f, vp->WorkSize.y - 24.0f));
+	if (runtime != nullptr) {
+		uint32_t w = 0, h = 0;
+		runtime->get_screenshot_width_and_height(&w, &h);
+		if (w > 1u && h > 1u) {
+			host_w = std::max(320.0f, static_cast<float>(w) - 24.0f);
+			host_h = std::max(240.0f, static_cast<float>(h) - 24.0f);
 		}
 	}
 	panel::draw_overlay(state, settings_, actions, host_w, host_h);
