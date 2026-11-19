@@ -1496,29 +1496,21 @@ void draw_taa_section(const PanelState &state, Settings &settings, PanelActions 
 	draw_quality_section(state, settings, actions);
 }
 
-void draw_overlay(const PanelState &state, Settings &settings, PanelActions &actions,
-	float host_w, float host_h)
+void draw_overlay(const PanelState &state, Settings &settings, PanelActions &actions)
 {
 	const ui::Theme theme;
 	char subtitle[64];
 	std::snprintf(subtitle, sizeof(subtitle), "v%s — Graphics Enhancer by AlexaInc", state.version != nullptr ? state.version : ""); // AlexaInc rebrand: visible UI, MIT copyright retained in LICENSE
 
 	// ---------------------------------------------------------------
-	// ReShade tab layout (v1.0.1)
-	// The add-on used to draw its own floating ImGui window, which is why it
-	// appeared as a separate window next to ReShade instead of a tab inside it.
-	// When ReShade hands us the overlay size, the panel now clips itself to that
-	// region and scrolls there, so it reads as a normal ReShade tab.
+	// ReShade tab layout (v1.0.4)
+	// The page draws straight into the window ReShade gives the add-on tab, and
+	// takes its width from that window on every frame (GetContentRegionAvail).
+	// v1.0.1-1.0.3 sized a child from get_screenshot_width_and_height(), which
+	// is the BACK BUFFER width -- far wider than the tab -- so segmented rows
+	// spread over the whole screenshot and everything on the right was clipped.
+	// No window of our own is opened, so it stays a tab and not a floating one.
 	// ---------------------------------------------------------------
-	if (host_w > 1.0f && host_h > 1.0f) {
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-		ImGui::BeginChild("##alexainc_tab", ImVec2(host_w, host_h), ImGuiChildFlags_None,
-			ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar);
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4.0f, 4.0f));
-		ImGui::BeginChild("##alexainc_tab_body", ImVec2(0.0f, 0.0f), ImGuiChildFlags_None,
-			ImGuiWindowFlags_NoBackground);
-	}
-
 	const bool upscaler_running = upscaler_lit(state, settings);
 	ui::banner("AlexaInc Enhancer", subtitle);
 	if (ui::section("Temporal Anti-Aliasing", ui::icon::kTaa, TR(sec_taa), true, nullptr, nullptr,
@@ -1562,12 +1554,6 @@ void draw_overlay(const PanelState &state, Settings &settings, PanelActions &act
 			draw_diagnostics_section(state, settings, actions);
 			ui::section_end();
 		}
-	}
-	if (host_w > 1.0f && host_h > 1.0f) {
-		ImGui::EndChild();
-		ImGui::PopStyleVar();
-		ImGui::EndChild();
-		ImGui::PopStyleVar();
 	}
 }
 

@@ -4112,21 +4112,12 @@ void App::draw_overlay(reshade::api::effect_runtime *runtime)
 	const PanelState state = panel_state(true);
 	PanelActions actions;
 
-	// ReShade tab layout (v1.0.1): give the panel the size of the overlay area it
-	// is drawn into, so it lays itself out there instead of opening a window of
-	// its own next to ReShade. The size comes from ReShade (buffer size), because
-	// ImGui::GetMainViewport/GetCurrentContext are not exported by the ImGui that
-	// ReShade links the add-on against.
-	float host_w = 0.0f, host_h = 0.0f;
-	if (runtime != nullptr) {
-		uint32_t w = 0, h = 0;
-		runtime->get_screenshot_width_and_height(&w, &h);
-		if (w > 1u && h > 1u) {
-			host_w = std::max(320.0f, static_cast<float>(w) - 24.0f);
-			host_h = std::max(240.0f, static_cast<float>(h) - 24.0f);
-		}
-	}
-	panel::draw_overlay(state, settings_, actions, host_w, host_h);
+	// v1.0.4: no host size any more. The panel reads the width of the ReShade
+	// window it is drawn into (GetContentRegionAvail) instead of being handed the
+	// back buffer size, which is much wider than the add-on tab and made every
+	// right aligned control overshoot the visible edge.
+	(void)runtime;
+	panel::draw_overlay(state, settings_, actions);
 	if (actions.save_report || actions.copy_report)
 		write_report(state, actions.copy_report);
 	apply_panel_actions(actions);

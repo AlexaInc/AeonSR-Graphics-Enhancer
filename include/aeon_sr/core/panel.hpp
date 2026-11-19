@@ -218,12 +218,11 @@ namespace panel {
 
 const char *format_label(uint32_t fmt);
 
-// host_w / host_h: size of the ReShade overlay window this is drawn into. When
-// they are non-zero the panel lays itself out inside that window (no window of
-// its own), which is what makes it a normal ReShade tab instead of a separate
-// floating window.
-void draw_overlay(const PanelState &state, Settings &settings, PanelActions &actions,
-	float host_w = 0.0f, float host_h = 0.0f);
+// Draws straight into the window ReShade gives the add-on tab and takes its
+// width from that window every frame, so it is a normal tab and it re-flows when
+// the overlay is resized. (v1.0.4: the host size parameters are gone -- they
+// were fed the back buffer size, which is far wider than the tab.)
+void draw_overlay(const PanelState &state, Settings &settings, PanelActions &actions);
 
 void draw_osd(const PanelState &state, const Settings &settings);
 
