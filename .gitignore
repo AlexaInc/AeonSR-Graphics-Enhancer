@@ -1,4 +1,7 @@
 build/
 out/
-external/
 *.user
+*.log
+*.ini
+.vs/
+.vscode/
