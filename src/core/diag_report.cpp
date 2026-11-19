@@ -443,11 +443,11 @@ std::wstring diag_report_text(const PanelState &state, const Settings &settings)
 	SYSTEMTIME now{};
 	GetLocalTime(&now);
 
-	out += L"Aeon SR diagnostic report\n";
+	out += L"AlexaInc Enhancer diagnostic report\n";
 	out += L"=========================\n";
 	out += wformat(L"generated   %04u-%02u-%02u %02u:%02u:%02u\n",
 		now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond);
-	out += wformat(L"add-on      Aeon SR %s (built %s)\n", e.addon_version.c_str(), e.build_stamp.c_str());
+	out += wformat(L"add-on      AlexaInc Enhancer %s (built %s)\n", e.addon_version.c_str(), e.build_stamp.c_str());
 	out += wformat(L"installed   %s\n", e.addon_path.c_str());
 	out += wformat(L"game        %s\n", e.exe_path.c_str());
 	out += wformat(L"windows     %s\n", e.os_version.c_str());
@@ -506,7 +506,7 @@ std::wstring diag_report_text(const PanelState &state, const Settings &settings)
 			elsewhere ? L"  " : L"", elsewhere ? f.path.c_str() : L"");
 	}
 	if (!e.foreign_modules.empty())
-		out += wformat(L"  upscaling modules in this process (Aeon SR's own included): %s\n", e.foreign_modules.c_str());
+		out += wformat(L"  upscaling modules in this process (AlexaInc Enhancer's own included): %s\n", e.foreign_modules.c_str());
 	out += L"\n";
 
 	out += L"INPUTS\n";

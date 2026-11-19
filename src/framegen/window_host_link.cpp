@@ -45,13 +45,13 @@ bool WindowHostLink::start(const std::wstring &exe, ID3D12Device *device, ID3D12
 	};
 	mapping_ = CreateFileMappingW(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, sizeof(window_host::Block), nullptr);
 	if (mapping_ == nullptr)
-		return refuse(hr_text(L"the block shared with AeonSRHost.exe could not be made", GetLastError()));
+		return refuse(hr_text(L"the block shared with AlexaIncEnhancerHost.exe could not be made", GetLastError()));
 	block_ = static_cast<window_host::Block *>(MapViewOfFile(mapping_, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(window_host::Block)));
 	request_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 	response_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 	released_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 	if (block_ == nullptr || request_ == nullptr || response_ == nullptr || released_ == nullptr)
-		return refuse(L"the block or the events shared with AeonSRHost.exe could not be made");
+		return refuse(L"the block or the events shared with AlexaIncEnhancerHost.exe could not be made");
 	std::memset(block_, 0, sizeof(window_host::Block));
 
 	HostLaunch launch;
@@ -101,7 +101,7 @@ bool WindowHostLink::start(const std::wstring &exe, ID3D12Device *device, ID3D12
 	MemoryBarrier();
 	if (!ok) {
 		CloseHandle(pi.hThread);
-		return refuse(L"the textures and fences could not be handed to AeonSRHost.exe");
+		return refuse(L"the textures and fences could not be handed to AlexaIncEnhancerHost.exe");
 	}
 	ResumeThread(pi.hThread);
 	CloseHandle(pi.hThread);
@@ -115,15 +115,15 @@ bool WindowHostLink::start(const std::wstring &exe, ID3D12Device *device, ID3D12
 			std::memcpy(text, const_cast<const wchar_t *>(block_->message), sizeof(block_->message));
 		DWORD code = STILL_ACTIVE;
 		GetExitCodeProcess(process_, &code);
-		std::wstring reason = hit == WAIT_TIMEOUT ? L"AeonSRHost.exe did not answer in time"
-			: hit == WAIT_OBJECT_0 + 1 ? hr_text(L"AeonSRHost.exe closed at once", code)
-			: std::wstring(L"AeonSRHost.exe could not show the window: ") + text;
+		std::wstring reason = hit == WAIT_TIMEOUT ? L"AlexaIncEnhancerHost.exe did not answer in time"
+			: hit == WAIT_OBJECT_0 + 1 ? hr_text(L"AlexaIncEnhancerHost.exe closed at once", code)
+			: std::wstring(L"AlexaIncEnhancerHost.exe could not show the window: ") + text;
 		return refuse(reason);
 	}
 	alive_ = true;
 	GpuClass c = GpuClass::Normal;
 	gpu_class_ = get_gpu_class(process_, &c) ? static_cast<int>(c) : -1;
-	diag_logf(DiagLevel::Info, "framegen", L"frame generation: its own window is shown by AeonSRHost.exe (pid %u), "
+	diag_logf(DiagLevel::Info, "framegen", L"frame generation: its own window is shown by AlexaIncEnhancerHost.exe (pid %u), "
 		L"its GPU scheduler class %ls", host_pid_, gpu_class_ >= 0 ? gpu_class_name(c) : L"not known");
 	return true;
 }
@@ -142,9 +142,9 @@ bool WindowHostLink::call(uint32_t timeout_ms)
 		return true;
 	DWORD code = STILL_ACTIVE;
 	GetExitCodeProcess(process_, &code);
-	fail(hit == WAIT_TIMEOUT ? std::wstring(L"AeonSRHost.exe stopped answering")
-		: hit == WAIT_OBJECT_0 + 1 ? hr_text(L"AeonSRHost.exe closed", code)
-		: std::wstring(L"AeonSRHost.exe answered another request"));
+	fail(hit == WAIT_TIMEOUT ? std::wstring(L"AlexaIncEnhancerHost.exe stopped answering")
+		: hit == WAIT_OBJECT_0 + 1 ? hr_text(L"AlexaIncEnhancerHost.exe closed", code)
+		: std::wstring(L"AlexaIncEnhancerHost.exe answered another request"));
 	return false;
 }
 

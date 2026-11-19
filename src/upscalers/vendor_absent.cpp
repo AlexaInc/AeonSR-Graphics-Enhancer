@@ -11,7 +11,7 @@ namespace aeon_sr {
 namespace {
 
 const wchar_t *const kWhy =
-	L"this game is a 32-bit program, so the upscalers run in AeonSRHost.exe beside "
+	L"this game is a 32-bit program, so the upscalers run in AlexaIncEnhancerHost.exe beside "
 	L"the add-on. If nothing is upscaling, that helper did not start; AeonSR.log "
 	L"says why.";
 

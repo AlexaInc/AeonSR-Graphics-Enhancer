@@ -218,7 +218,12 @@ namespace panel {
 
 const char *format_label(uint32_t fmt);
 
-void draw_overlay(const PanelState &state, Settings &settings, PanelActions &actions);
+// host_w / host_h: size of the ReShade overlay window this is drawn into. When
+// they are non-zero the panel lays itself out inside that window (no window of
+// its own), which is what makes it a normal ReShade tab instead of a separate
+// floating window.
+void draw_overlay(const PanelState &state, Settings &settings, PanelActions &actions,
+	float host_w = 0.0f, float host_h = 0.0f);
 
 void draw_osd(const PanelState &state, const Settings &settings);
 

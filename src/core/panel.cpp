@@ -760,7 +760,7 @@ void draw_framegen_section(const PanelState &state, Settings &settings, PanelAct
 	const FrameGenReadout &f = state.framegen;
 	const bool running = settings.frame_generation && f.generating;
 	const RowOption kGeneratorOptions[] = {
-		{ "AeonSR", TR(fg_aeonsr_tip), ui::Brand::Neutral },
+		{ "AlexaInc", TR(fg_aeonsr_tip), ui::Brand::Neutral },
 		{ "FSR", TR(fg_fsr_tip), ui::Brand::Amd },
 		{ "XeSS", TR(fg_xess_tip), ui::Brand::Intel },
 		{ "DLSS", TR(fg_dlss_tip), ui::Brand::Nvidia },
@@ -853,7 +853,7 @@ void draw_framegen_section(const PanelState &state, Settings &settings, PanelAct
 
 	const RowOption kLatencyOptions[] = {
 		{ TR(opt_off), TR(fg_latency_off_tip), ui::Brand::Neutral },
-		{ "AeonSR", TR(fg_latency_aeonsr_tip), ui::Brand::Neutral },
+		{ "AlexaInc", TR(fg_latency_aeonsr_tip), ui::Brand::Neutral },
 		{ "Reflex", TR(fg_latency_reflex_tip), ui::Brand::Nvidia },
 	};
 	if (button_row_index<3>(TR(fg_low_latency), &settings.low_latency, kLatencyOptions,
@@ -1496,13 +1496,31 @@ void draw_taa_section(const PanelState &state, Settings &settings, PanelActions 
 	draw_quality_section(state, settings, actions);
 }
 
-void draw_overlay(const PanelState &state, Settings &settings, PanelActions &actions)
+void draw_overlay(const PanelState &state, Settings &settings, PanelActions &actions,
+	float host_w, float host_h)
 {
 	const ui::Theme theme;
 	char subtitle[64];
 	std::snprintf(subtitle, sizeof(subtitle), "v%s — Graphics Enhancer by AlexaInc", state.version != nullptr ? state.version : ""); // AlexaInc rebrand: visible UI, MIT copyright retained in LICENSE
+
+	// ---------------------------------------------------------------
+	// ReShade tab layout (v1.0.1)
+	// The add-on used to draw its own floating ImGui window, which is why it
+	// appeared as a separate window next to ReShade instead of a tab inside it.
+	// When ReShade hands us the overlay size, the panel now clips itself to that
+	// region and scrolls there, so it reads as a normal ReShade tab.
+	// ---------------------------------------------------------------
+	if (host_w > 1.0f && host_h > 1.0f) {
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::BeginChild("##alexainc_tab", ImVec2(host_w, host_h), ImGuiChildFlags_None,
+			ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_AlwaysVerticalScrollbar);
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(4.0f, 4.0f));
+		ImGui::BeginChild("##alexainc_tab_body", ImVec2(0.0f, 0.0f), ImGuiChildFlags_None,
+			ImGuiWindowFlags_NoBackground);
+	}
+
 	const bool upscaler_running = upscaler_lit(state, settings);
-	ui::banner("AEON SR", subtitle);
+	ui::banner("AlexaInc Enhancer", subtitle);
 	if (ui::section("Temporal Anti-Aliasing", ui::icon::kTaa, TR(sec_taa), true, nullptr, nullptr,
 			active_short_name(state, settings), active_brand(state, settings), upscaler_running, true)) {
 		draw_taa_section(state, settings, actions);
@@ -1515,7 +1533,7 @@ void draw_overlay(const PanelState &state, Settings &settings, PanelActions &act
 		ui::section_end();
 	}
 #if AEONSR_FRAME_GENERATION
-	static const char *const kFgShort[kFrameGeneratorCount] = { "AeonSR", "FSR", "XeSS", "DLSS" };
+	static const char *const kFgShort[kFrameGeneratorCount] = { "AlexaInc", "FSR", "XeSS", "DLSS" };
 	const FrameGenerator fg_maker = settings.frame_generation && state.framegen.generating ? state.framegen.generator
 		: static_cast<FrameGenerator>(settings.frame_generator);
 	const ui::Brand fg_brand = fg_maker == FrameGenerator::Dlss ? ui::Brand::Nvidia
@@ -1544,6 +1562,12 @@ void draw_overlay(const PanelState &state, Settings &settings, PanelActions &act
 			draw_diagnostics_section(state, settings, actions);
 			ui::section_end();
 		}
+	}
+	if (host_w > 1.0f && host_h > 1.0f) {
+		ImGui::EndChild();
+		ImGui::PopStyleVar();
+		ImGui::EndChild();
+		ImGui::PopStyleVar();
 	}
 }
 

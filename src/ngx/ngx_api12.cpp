@@ -241,7 +241,7 @@ const Ngx12Api &ngx12_api(const std::wstring &addon_dir)
 		if (GetModuleHandleW(path.c_str()) != nullptr && !own_ngx_started()) {
 			loaded.path = path;
 			loaded.error = L"another program in this game loaded it first (OptiScaler?); sharing its one "
-				L"instance would end that program's DLSS whenever Aeon SR's stops";
+				L"instance would end that program's DLSS whenever AlexaInc Enhancer's stops";
 		} else {
 			note_own_ngx_start();
 			set_d4r_states();

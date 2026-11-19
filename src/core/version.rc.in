@@ -19,7 +19,7 @@ BEGIN
       VALUE "FileDescription", "@AEONSR_RC_DESCRIPTION@"
       VALUE "FileVersion", "@PROJECT_VERSION@"
       VALUE "InternalName", "@AEONSR_RC_FILENAME@"
-      VALUE "LegalCopyright", "Copyright (c) 2026 AlexaInc. Fork of Aeon SR by Barbatos AWLS, MIT License."
+      VALUE "LegalCopyright", "Copyright (c) 2026 AlexaInc. Fork of AlexaInc Enhancer by Barbatos AWLS, MIT License."
       VALUE "OriginalFilename", "@AEONSR_RC_FILENAME@"
       VALUE "ProductName", "AlexaInc Enhancer"
       VALUE "ProductVersion", "@PROJECT_VERSION@"

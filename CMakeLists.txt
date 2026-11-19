@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(AlexaInc_Enhancer VERSION 1.0.0 LANGUAGES C CXX)
+project(AlexaInc_Enhancer VERSION 1.0.1 LANGUAGES C CXX)
 
 set(AEONSR_VERSION_STR "${PROJECT_VERSION}")
 

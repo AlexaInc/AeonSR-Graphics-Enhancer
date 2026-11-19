@@ -411,7 +411,7 @@ void diag_log(DiagLevel level, const char *tag, const std::wstring &text)
 
 		if (s.sink != nullptr && level >= DiagLevel::Warn) {
 			sink = s.sink;
-			mirror = "[Aeon SR] " + diag_narrow(text);
+			mirror = "[AlexaInc Enhancer] " + diag_narrow(text);
 		}
 	}
 	if (sink != nullptr)
@@ -632,7 +632,7 @@ const DiagEnvironment &diag_environment()
 void diag_log_environment()
 {
 	const DiagEnvironment &e = g_env;
-	diag_logf(DiagLevel::Info, "aeonsr", L"Aeon SR %s (built %s)",
+	diag_logf(DiagLevel::Info, "aeonsr", L"AlexaInc Enhancer %s (built %s)",
 		e.addon_version.c_str(), e.build_stamp.c_str());
 	diag_logf(DiagLevel::Info, "aeonsr", L"add-on: %s", e.addon_path.c_str());
 	diag_logf(DiagLevel::Info, "aeonsr", L"game:   %s", e.exe_path.c_str());

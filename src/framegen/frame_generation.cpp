@@ -683,7 +683,7 @@ void FrameGeneration::on_present_own_window(effect_runtime *runtime, FrameBridge
 			static_cast<unsigned long long>(s.work_found - std::min(s.work_found, own_logged_.work_found)),
 			static_cast<unsigned long long>(s.work_untimed - std::min(s.work_untimed, own_logged_.work_untimed)),
 			!s.visible ? L"hidden (the game is not in front)"
-				: s.in_host ? L"shown, from AeonSRHost.exe" : L"shown, from the game's process");
+				: s.in_host ? L"shown, from AlexaIncEnhancerHost.exe" : L"shown, from the game's process");
 		own_logged_ = s;
 		window_ = Window{};
 		window_start_ = ret;

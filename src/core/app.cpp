@@ -686,11 +686,11 @@ void App::run_engine_passes(reshade::api::effect_runtime *runtime, const FrameIn
 	if (backend != nullptr && must_run_in_host(backend)) {
 		backend->status = UpscalerStatus::InitFailed;
 		const wchar_t *const why = sizeof(void *) == 4
-			? L"a 32-bit game runs its upscaler in AeonSRHost.exe"
+			? L"a 32-bit game runs its upscaler in AlexaIncEnhancerHost.exe"
 			: upscaler_layer_seen()
-			? L"another program answers upscaler calls in this game (OptiScaler), so Aeon SR's upscaler runs in "
-			  L"AeonSRHost.exe, apart from it"
-			: L"the game runs its own DLSS, so Aeon SR's runs in AeonSRHost.exe";
+			? L"another program answers upscaler calls in this game (OptiScaler), so AlexaInc Enhancer's upscaler runs in "
+			  L"AlexaIncEnhancerHost.exe, apart from it"
+			: L"the game runs its own DLSS, so AlexaInc Enhancer's runs in AlexaIncEnhancerHost.exe";
 		backend->last_error = remote_.last_error.empty()
 			? std::wstring(why) + L", which is starting"
 			: std::wstring(why) + L", which could not start: " + remote_.last_error;
@@ -1009,23 +1009,23 @@ void App::run_neural_render(reshade::api::effect_runtime *runtime,
 	if (sizeof(void *) != 4 && route.dlss_to_layer && route.neural_in_host) {
 		if (remote_tried_ && !remote_.ready())
 			neural12_.set_status(UpscalerStatus::InitFailed, L"OptiScaler does the upscale in this game, so DLSS "
-				L"neural rendering runs in AeonSRHost.exe, which did not start: " + remote_.last_error);
+				L"neural rendering runs in AlexaIncEnhancerHost.exe, which did not start: " + remote_.last_error);
 		else
 			neural12_.set_status(UpscalerStatus::Loading, L"OptiScaler does the upscale in this game, so DLSS "
-				L"neural rendering runs in AeonSRHost.exe, which is starting");
+				L"neural rendering runs in AlexaIncEnhancerHost.exe, which is starting");
 		return;
 	}
 	if (sizeof(void *) != 4 && route.all_in_host) {
 		if (active_ != nullptr && !crosses(active_) && active_ != static_cast<const UpscalerBackend *>(&vsr11_))
 			neural12_.set_status(UpscalerStatus::InitFailed, L"another program answers DLSS calls in this game, so "
-				L"DLSS neural rendering runs in AeonSRHost.exe, after an upscaler that runs there or RTX VSR: DLSS, FSR, "
+				L"DLSS neural rendering runs in AlexaIncEnhancerHost.exe, after an upscaler that runs there or RTX VSR: DLSS, FSR, "
 				L"XeSS or RTX VSR. The upscaler running now writes the game's own texture.");
 		else if (remote_tried_ && !remote_.ready())
 			neural12_.set_status(UpscalerStatus::InitFailed, L"another program answers DLSS calls in this game, so "
-				L"DLSS neural rendering runs in AeonSRHost.exe, which did not start: " + remote_.last_error);
+				L"DLSS neural rendering runs in AlexaIncEnhancerHost.exe, which did not start: " + remote_.last_error);
 		else
 			neural12_.set_status(UpscalerStatus::Loading, L"another program answers DLSS calls in this game, so "
-				L"DLSS neural rendering runs in AeonSRHost.exe, which is starting");
+				L"DLSS neural rendering runs in AlexaIncEnhancerHost.exe, which is starting");
 		return;
 	}
 	if (fsr12_.fsr_device_busy() || xess12_.xess_loading() || dlss12_.dlss_loading())
@@ -1216,7 +1216,7 @@ void App::update_ngx_layers()
 		}
 	}
 	diag_state("ngx-layer", DiagLevel::Info, "aeonsr", names + L" is loaded in this game and answers upscaler "
-		L"calls in it; Aeon SR's DLSS, FSR, XeSS and DLSS neural rendering run in AeonSRHost.exe, apart from it, "
+		L"calls in it; AlexaInc Enhancer's DLSS, FSR, XeSS and DLSS neural rendering run in AlexaIncEnhancerHost.exe, apart from it, "
 		L"whenever they are on, unless the panel hands the upscale to OptiScaler" +
 		std::wstring(ngx_layer_table_.empty() ? L" (none of them can take it: no NGX Direct3D 12 table)." : L"."));
 }
@@ -1242,7 +1242,7 @@ void App::update_native_dlss()
 	native_dlss_seen_ = native_dlss_.native;
 	if (native_dlss_seen_ && layer_dlss_started_ && !game_dlss_for_layer()) {
 		diag_state("native-dlss", DiagLevel::Info, "aeonsr",
-			L"a DLSS module was loaded after Aeon SR's call went to OptiScaler, most likely OptiScaler's own to serve "
+			L"a DLSS module was loaded after AlexaInc Enhancer's call went to OptiScaler, most likely OptiScaler's own to serve "
 			L"it: " + native_dlss_.source + L" from " + native_dlss_.dlss_path);
 	} else if (native_dlss_seen_) {
 		diag_state("native-dlss", DiagLevel::Info, "aeonsr",
@@ -4111,7 +4111,19 @@ void App::draw_overlay(reshade::api::effect_runtime *runtime)
 	neural_runtime_present();
 	const PanelState state = panel_state(true);
 	PanelActions actions;
-	panel::draw_overlay(state, settings_, actions);
+
+	// ReShade tab layout (v1.0.1): give the panel the size of the overlay window
+	// it is being drawn into, so it lays itself out there instead of opening a
+	// window of its own next to ReShade.
+	float host_w = 0.0f, host_h = 0.0f;
+	if (ImGui::GetCurrentContext() != nullptr) {
+		const ImGuiViewport *const vp = ImGui::GetMainViewport();
+		if (vp != nullptr && vp->WorkSize.x > 1.0f && vp->WorkSize.y > 1.0f) {
+			host_w = std::min(vp->WorkSize.x * 0.98f, std::max(320.0f, vp->WorkSize.x - 24.0f));
+			host_h = std::min(vp->WorkSize.y * 0.94f, std::max(240.0f, vp->WorkSize.y - 24.0f));
+		}
+	}
+	panel::draw_overlay(state, settings_, actions, host_w, host_h);
 	if (actions.save_report || actions.copy_report)
 		write_report(state, actions.copy_report);
 	apply_panel_actions(actions);
@@ -4334,7 +4346,7 @@ void App::service_report()
 	SYSTEMTIME t{};
 	GetLocalTime(&t);
 	char summary[256]{};
-	std::snprintf(summary, sizeof(summary), "Aeon SR %s report, %04u-%02u-%02u %02u:%02u:%02u.\n"
+	std::snprintf(summary, sizeof(summary), "AlexaInc Enhancer %s report, %04u-%02u-%02u %02u:%02u:%02u.\n"
 		"Attach this file when you report a problem.\n", AEONSR_VERSION_STR, t.wYear, t.wMonth, t.wDay, t.wHour,
 		t.wMinute, t.wSecond);
 	b.summary = summary;

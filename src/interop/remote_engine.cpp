@@ -163,7 +163,7 @@ std::wstring RemoteEngine::describe() const
 {
 	if (ready()) {
 		wchar_t buf[96];
-		swprintf(buf, 96, L"AeonSRHost.exe (64-bit), pid %u", host_pid_);
+		swprintf(buf, 96, L"AlexaIncEnhancerHost.exe (64-bit), pid %u", host_pid_);
 		return buf;
 	}
 	if (!last_error.empty())
@@ -197,7 +197,7 @@ bool RemoteEngine::start(EngineDevice &engine, HMODULE module, reshade::api::dev
 	if (map_err == ERROR_ALREADY_EXISTS) {
 		last_error = L"the engine host session is already taken. If the upscaler was just "
 			L"switched off, wait a few seconds and turn it on again; if it keeps happening, "
-			L"a second copy of Aeon SR is loaded in this game and one of them has to go.";
+			L"a second copy of AlexaInc Enhancer is loaded in this game and one of them has to go.";
 		stop();
 		return false;
 	}
@@ -254,9 +254,9 @@ bool RemoteEngine::start(EngineDevice &engine, HMODULE module, reshade::api::dev
 	fence_value_ = 0;
 
 	const std::wstring dir = module_directory(module);
-	host_path_ = join_path(dir, L"AeonSRHost.exe");
+	host_path_ = join_path(dir, L"AlexaIncEnhancerHost.exe");
 	if (!path_exists(host_path_)) {
-		last_error = L"AeonSRHost.exe is missing. It ships beside AeonSR.addon and is what runs "
+		last_error = L"AlexaIncEnhancerHost.exe is missing. It ships beside AeonSR.addon and is what runs "
 			L"the upscaler for a 32-bit game; copy it into the same folder and restart the game.";
 		diag_error("remote", L"no host executable at " + host_path_);
 		stop();
@@ -275,7 +275,7 @@ bool RemoteEngine::start(EngineDevice &engine, HMODULE module, reshade::api::dev
 	if (!CreateProcessW(host_path_.c_str(), mutable_command.data(), nullptr, nullptr, FALSE,
 			CREATE_NO_WINDOW, nullptr, dir.c_str(), &si, &pi)) {
 		log_hr(L"CreateProcess for the host", HRESULT_FROM_WIN32(GetLastError()));
-		last_error = L"AeonSRHost.exe would not start. Antivirus software blocking it is the "
+		last_error = L"AlexaIncEnhancerHost.exe would not start. Antivirus software blocking it is the "
 			L"usual reason; allow it and restart the game.";
 		stop();
 		return false;
@@ -289,7 +289,7 @@ bool RemoteEngine::start(EngineDevice &engine, HMODULE module, reshade::api::dev
 			DWORD code = 0;
 			GetExitCodeProcess(host_process_, &code);
 			wchar_t why[192];
-			swprintf(why, 192, L"AeonSRHost.exe started and closed again straight away, with "
+			swprintf(why, 192, L"AlexaIncEnhancerHost.exe started and closed again straight away, with "
 				L"exit code %lu. AeonSR.log beside the add-on says what it could not do.", code);
 			last_error = why;
 			diag_logf(DiagLevel::Error, "remote", L"the host exited during the handshake, code %lu",
@@ -300,7 +300,7 @@ bool RemoteEngine::start(EngineDevice &engine, HMODULE module, reshade::api::dev
 		if (load32(block_->host_ready) != 0)
 			break;
 		if (GetTickCount64() >= deadline) {
-			last_error = L"AeonSRHost.exe started but never answered. AeonSR.log beside the "
+			last_error = L"AlexaIncEnhancerHost.exe started but never answered. AeonSR.log beside the "
 				L"add-on says how far it got.";
 			stop();
 			return false;
@@ -311,7 +311,7 @@ bool RemoteEngine::start(EngineDevice &engine, HMODULE module, reshade::api::dev
 		DWORD code = 0;
 		GetExitCodeProcess(host_process_, &code);
 		wchar_t why[192];
-		swprintf(why, 192, L"AeonSRHost.exe answered and then closed, with exit code %lu. "
+		swprintf(why, 192, L"AlexaIncEnhancerHost.exe answered and then closed, with exit code %lu. "
 			L"AeonSR.log beside the add-on says what it could not do.", code);
 		last_error = why;
 		diag_logf(DiagLevel::Error, "remote", L"the host exited right after the handshake, code %lu",
@@ -333,7 +333,7 @@ bool RemoteEngine::start(EngineDevice &engine, HMODULE module, reshade::api::dev
 		} else if (sscanf(AEONSR_VERSION_STR, "%u.%u", &ours_major, &ours_minor) == 2) {
 			if (host_major != ours_major || host_minor != ours_minor) {
 				wchar_t why[224];
-				swprintf(why, 224, L"AeonSRHost.exe is version %u.%u and this add-on is %u.%u. "
+				swprintf(why, 224, L"AlexaIncEnhancerHost.exe is version %u.%u and this add-on is %u.%u. "
 					L"They ship together and have to match; copy the host from the same "
 					L"download as the add-on.", host_major, host_minor, ours_major, ours_minor);
 				last_error = why;
@@ -613,7 +613,7 @@ bool RemoteEngine::exchange(EngineDevice &engine, const Request &req,
 		const DWORD left = now >= deadline ? 0 : static_cast<DWORD>(deadline - now);
 		const DWORD woke = WaitForMultipleObjects(2, waits, FALSE, left);
 		if (woke == WAIT_OBJECT_0 + 1) {
-			last_error = L"AeonSRHost.exe closed while the game was still running. The "
+			last_error = L"AlexaIncEnhancerHost.exe closed while the game was still running. The "
 				L"upscaler is off until it is started again.";
 			stop();
 			reply.step = remote::RemoteStep::Lost;
@@ -712,7 +712,7 @@ bool RemoteEngine::exchange(EngineDevice &engine, const Request &req,
 
 	if (WaitForSingleObject(host_process_, 0) == WAIT_OBJECT_0) {
 		if (!fence_wait(fence_, signal_value, 50)) {
-			last_error = L"AeonSRHost.exe closed part way through a frame. The upscaler is "
+			last_error = L"AlexaIncEnhancerHost.exe closed part way through a frame. The upscaler is "
 				L"off until it is started again.";
 			stop();
 			reply.step = remote::RemoteStep::Lost;
@@ -817,7 +817,7 @@ bool RemoteEngine::run(EngineDevice &engine, const Request &req, Reply &reply)
 	if (frame_outstanding_) {
 		if (host_still_owns_planes()) {
 			if (WaitForSingleObject(host_process_, 0) == WAIT_OBJECT_0) {
-				last_error = L"AeonSRHost.exe closed while the game was still running. The "
+				last_error = L"AlexaIncEnhancerHost.exe closed while the game was still running. The "
 					L"upscaler is off until it is started again.";
 				stop();
 				reply.step = remote::RemoteStep::Lost;

@@ -23,7 +23,7 @@ bool read_setup(const Block &block, Setup *out, const wchar_t **why) noexcept
 {
 	const uint32_t magic = block.magic, version = block.version, size = block.block_size;
 	if (magic != kMagic || version != kVersion || size != kBlockSize) {
-		*why = L"the add-on and AeonSRHost.exe are from different builds";
+		*why = L"the add-on and AlexaIncEnhancerHost.exe are from different builds";
 		return false;
 	}
 	Setup s;

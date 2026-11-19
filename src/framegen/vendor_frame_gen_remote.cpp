@@ -158,7 +158,7 @@ bool RemoteVendorFrameGenerator::make_shared(const VendorFrame &f, std::wstring 
 		SUCCEEDED(f.device->CreateFence(0, D3D12_FENCE_FLAG_SHARED, IID_PPV_ARGS(&s.to_game)));
 	if (!ok) {
 		s.release();
-		*why = generator_name(kind_) + L" frame generation: the textures shared with AeonSRHost.exe could not be made";
+		*why = generator_name(kind_) + L" frame generation: the textures shared with AlexaIncEnhancerHost.exe could not be made";
 		return false;
 	}
 	shared_ = s;
@@ -178,12 +178,12 @@ void RemoteVendorFrameGenerator::start_host()
 	};
 	mapping_ = CreateFileMappingW(INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE, 0, sizeof(fg_host::Block), nullptr);
 	if (mapping_ == nullptr)
-		return refuse(error_text(L"the block shared with AeonSRHost.exe could not be made", GetLastError()));
+		return refuse(error_text(L"the block shared with AlexaIncEnhancerHost.exe could not be made", GetLastError()));
 	block_ = static_cast<fg_host::Block *>(MapViewOfFile(mapping_, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(fg_host::Block)));
 	request_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 	response_ = CreateEventW(nullptr, FALSE, FALSE, nullptr);
 	if (block_ == nullptr || request_ == nullptr || response_ == nullptr)
-		return refuse(L"the block or the events shared with AeonSRHost.exe could not be made");
+		return refuse(L"the block or the events shared with AlexaIncEnhancerHost.exe could not be made");
 	std::memset(block_, 0, sizeof(fg_host::Block));
 
 	HostLaunch launch;
@@ -229,7 +229,7 @@ void RemoteVendorFrameGenerator::start_host()
 	MemoryBarrier();
 	if (!ok) {
 		CloseHandle(launch.thread);
-		return refuse(L"the textures and fences could not be handed to AeonSRHost.exe");
+		return refuse(L"the textures and fences could not be handed to AlexaIncEnhancerHost.exe");
 	}
 	ResumeThread(launch.thread);
 	CloseHandle(launch.thread);
@@ -243,14 +243,14 @@ void RemoteVendorFrameGenerator::start_host()
 			std::memcpy(text, const_cast<const wchar_t *>(block_->message), sizeof(block_->message));
 		DWORD code = STILL_ACTIVE;
 		GetExitCodeProcess(process_, &code);
-		return refuse(hit == WAIT_TIMEOUT ? std::wstring(L"AeonSRHost.exe did not answer in time")
-			: hit == WAIT_OBJECT_0 + 1 ? error_text(L"AeonSRHost.exe closed at once", code)
-			: std::wstring(L"AeonSRHost.exe could not run it: ") + text);
+		return refuse(hit == WAIT_TIMEOUT ? std::wstring(L"AlexaIncEnhancerHost.exe did not answer in time")
+			: hit == WAIT_OBJECT_0 + 1 ? error_text(L"AlexaIncEnhancerHost.exe closed at once", code)
+			: std::wstring(L"AlexaIncEnhancerHost.exe could not run it: ") + text);
 	}
 	host_pid_ = launch.pid;
 	alive_ = true;
 	watch_host();
-	diag_logf(DiagLevel::Info, "framegen", L"%ls frame generation runs in AeonSRHost.exe (pid %u), %ux%u",
+	diag_logf(DiagLevel::Info, "framegen", L"%ls frame generation runs in AlexaIncEnhancerHost.exe (pid %u), %ux%u",
 		generator_name(kind_).c_str(), launch.pid, shared_.width, shared_.height);
 	starting_ = false;
 }
@@ -269,9 +269,9 @@ bool RemoteVendorFrameGenerator::call(uint32_t timeout_ms)
 		return true;
 	DWORD code = STILL_ACTIVE;
 	GetExitCodeProcess(process_, &code);
-	failed_ = hit == WAIT_TIMEOUT ? std::wstring(L"AeonSRHost.exe stopped answering")
-		: hit == WAIT_OBJECT_0 + 1 ? error_text(L"AeonSRHost.exe closed", code)
-		: std::wstring(L"AeonSRHost.exe answered another request");
+	failed_ = hit == WAIT_TIMEOUT ? std::wstring(L"AlexaIncEnhancerHost.exe stopped answering")
+		: hit == WAIT_OBJECT_0 + 1 ? error_text(L"AlexaIncEnhancerHost.exe closed", code)
+		: std::wstring(L"AlexaIncEnhancerHost.exe answered another request");
 	diag_logf(DiagLevel::Warn, "framegen", L"%ls frame generation: %ls", generator_name(kind_).c_str(), failed_.c_str());
 	end_host(true);
 	return false;
@@ -352,13 +352,13 @@ VendorStep RemoteVendorFrameGenerator::record(const VendorFrame &f, std::wstring
 	age_retired();
 	const std::wstring name = generator_name(kind_);
 	if (starting_) {
-		*note = name + L" frame generation: AeonSRHost.exe is starting";
+		*note = name + L" frame generation: AlexaIncEnhancerHost.exe is starting";
 		return VendorStep::Building;
 	}
 	if (starter_.joinable())
 		starter_.join();
 	if (exe_.empty()) {
-		*note = name + L" frame generation needs AeonSRHost.exe beside the add-on (its runtime is 64-bit only)";
+		*note = name + L" frame generation needs AlexaIncEnhancerHost.exe beside the add-on (its runtime is 64-bit only)";
 		return VendorStep::Unavailable;
 	}
 	if (f.queue == nullptr || !f.flush || f.device == nullptr || f.color == nullptr || f.motion == nullptr ||
@@ -379,7 +379,7 @@ VendorStep RemoteVendorFrameGenerator::record(const VendorFrame &f, std::wstring
 		shared_.format == f.format;
 	if (!alive_ || !shape) {
 		if (GetTickCount64() < retry_after_) {
-			*note = name + L" frame generation: AeonSRHost.exe is starting again";
+			*note = name + L" frame generation: AlexaIncEnhancerHost.exe is starting again";
 			return VendorStep::Building;
 		}
 		if (alive_)
@@ -401,7 +401,7 @@ VendorStep RemoteVendorFrameGenerator::record(const VendorFrame &f, std::wstring
 		max_generated_ = 1;
 		starting_ = true;
 		starter_ = std::thread([this] { start_host(); });
-		*note = name + L" frame generation: AeonSRHost.exe is starting";
+		*note = name + L" frame generation: AlexaIncEnhancerHost.exe is starting";
 		return VendorStep::Building;
 	}
 
@@ -421,7 +421,7 @@ VendorStep RemoteVendorFrameGenerator::record(const VendorFrame &f, std::wstring
 	}
 	const uint64_t wait_value = ++to_host_value_;
 	if (FAILED(f.queue->Signal(shared_.to_host, wait_value))) {
-		*note = name + L" frame generation: the engine's queue could not signal AeonSRHost.exe";
+		*note = name + L" frame generation: the engine's queue could not signal AlexaIncEnhancerHost.exe";
 		return VendorStep::Failed;
 	}
 	const uint64_t signal_value = ++to_game_value_;
@@ -483,7 +483,7 @@ VendorStep RemoteVendorFrameGenerator::record(const VendorFrame &f, std::wstring
 		}
 	} else if (step == static_cast<uint32_t>(fg_host::Step::HostFailed)) {
 		if (text[0] == L'\0')
-			*note = name + L" frame generation: AeonSRHost.exe's own list failed";
+			*note = name + L" frame generation: AlexaIncEnhancerHost.exe's own list failed";
 	}
 	return out;
 }

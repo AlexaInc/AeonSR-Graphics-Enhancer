@@ -429,7 +429,7 @@ bool FrameGenStage::select_generator(const FrameGenOptions &o)
 			vendor_unavailable_ = true;
 			unavailable_kind_ = o.generator;
 			fallback_note_ = diag_widen(frame_generator_label(o.generator)) +
-				L" frame generation needs AeonSRHost.exe beside the add-on in a 32-bit game; AeonSR's generator is used";
+				L" frame generation needs AlexaIncEnhancerHost.exe beside the add-on in a 32-bit game; AeonSR's generator is used";
 		}
 	} else if (!want_vendor) {
 		retire_vendor();

@@ -289,7 +289,7 @@ bool StageTimings::take_report(uint64_t now_ms, uint64_t period_ms, std::wstring
 	}
 	if (remote_frames_ != 0) {
 		wchar_t buf[160]{};
-		_snwprintf_s(buf, _TRUNCATE, L"%s%u frame(s) ran the upscaler in AeonSRHost.exe, and their total and "
+		_snwprintf_s(buf, _TRUNCATE, L"%s%u frame(s) ran the upscaler in AlexaIncEnhancerHost.exe, and their total and "
 			L"upscaler, which wait on the host, are left out", out.empty() ? L"" : L"; ", remote_frames_);
 		out += buf;
 		remote_frames_ = 0;

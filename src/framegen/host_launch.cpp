@@ -31,7 +31,7 @@ bool launch_host_suspended(const std::wstring &exe, HANDLE mapping, const wchar_
 {
 	*out = HostLaunch{};
 	if (exe.empty() || GetFileAttributesW(exe.c_str()) == INVALID_FILE_ATTRIBUTES) {
-		*why = L"AeonSRHost.exe is not beside the add-on";
+		*why = L"AlexaIncEnhancerHost.exe is not beside the add-on";
 		return false;
 	}
 	SIZE_T list_size = 0;
@@ -40,11 +40,11 @@ bool launch_host_suspended(const std::wstring &exe, HANDLE mapping, const wchar_
 	auto *const list = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(list_mem.data());
 	HANDLE inherit[1] = { mapping };
 	if (!InitializeProcThreadAttributeList(list, 1, 0, &list_size)) {
-		*why = error_text(L"AeonSRHost.exe could not be given the block", GetLastError());
+		*why = error_text(L"AlexaIncEnhancerHost.exe could not be given the block", GetLastError());
 		return false;
 	}
 	if (!UpdateProcThreadAttribute(list, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST, inherit, sizeof(inherit), nullptr, nullptr)) {
-		*why = error_text(L"AeonSRHost.exe could not be given the block", GetLastError());
+		*why = error_text(L"AlexaIncEnhancerHost.exe could not be given the block", GetLastError());
 		DeleteProcThreadAttributeList(list);
 		return false;
 	}
@@ -71,7 +71,7 @@ bool launch_host_suspended(const std::wstring &exe, HANDLE mapping, const wchar_
 	SetHandleInformation(mapping, HANDLE_FLAG_INHERIT, 0);
 	DeleteProcThreadAttributeList(list);
 	if (!created) {
-		*why = error_text(L"AeonSRHost.exe would not start", create_error);
+		*why = error_text(L"AlexaIncEnhancerHost.exe would not start", create_error);
 		return false;
 	}
 	out->process = pi.hProcess;
@@ -97,7 +97,7 @@ std::wstring host_beside_addon(const wchar_t *env)
 	const DWORD n = env != nullptr ? GetEnvironmentVariableW(env, v, MAX_PATH) : 0;
 	if (n > 0 && n < MAX_PATH)
 		return wcscmp(v, L"0") == 0 ? std::wstring() : std::wstring(v);
-	return join_path(module_directory(this_module()), L"AeonSRHost.exe");
+	return join_path(module_directory(this_module()), L"AlexaIncEnhancerHost.exe");
 }
 
 }

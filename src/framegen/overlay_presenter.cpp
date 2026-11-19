@@ -545,7 +545,7 @@ bool OverlayPresenter::start_sink()
 	if (init_host(&host_why))
 		return true;
 	++host_failures_;
-	diag_logf(DiagLevel::Warn, "framegen", L"frame generation: AeonSRHost.exe could not show its own window (%ls); "
+	diag_logf(DiagLevel::Warn, "framegen", L"frame generation: AlexaIncEnhancerHost.exe could not show its own window (%ls); "
 		L"shown from the game's process", host_why.c_str());
 	release_sink();
 	std::wstring why;
@@ -618,7 +618,7 @@ bool OverlayPresenter::init_local(std::wstring *why)
 		}
 	}
 	window_ = CreateWindowExW(WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE | WS_EX_LAYERED | WS_EX_TRANSPARENT |
-		WS_EX_NOREDIRECTIONBITMAP, kClass, L"Aeon SR frame generation", WS_POPUP, 0, 0, static_cast<int>(w_),
+		WS_EX_NOREDIRECTIONBITMAP, kClass, L"AlexaInc Enhancer frame generation", WS_POPUP, 0, 0, static_cast<int>(w_),
 		static_cast<int>(h_), nullptr, nullptr, inst, nullptr);
 	if (window_ == nullptr) {
 		*why = L"frame generation: its window could not be made";
@@ -901,7 +901,7 @@ void OverlayPresenter::lose_host(uint64_t promised) noexcept
 		done12_->Signal(done_value_);
 	host_lost_ = true;
 	++host_failures_;
-	diag_logf(DiagLevel::Warn, "framegen", L"frame generation: AeonSRHost.exe stopped showing its own window (%ls); "
+	diag_logf(DiagLevel::Warn, "framegen", L"frame generation: AlexaIncEnhancerHost.exe stopped showing its own window (%ls); "
 		L"shown from the game's process from now on", why.c_str());
 }
 
@@ -1346,7 +1346,7 @@ bool OverlayPresenter::render(const OverlayChoice &c)
 		WindowHostAnswer a;
 		if (!host_->present(si, ready_value_, promised, 1, &a) || FAILED(a.present_hr)) {
 			if (host_->alive())
-				diag_logf(DiagLevel::Warn, "framegen", L"frame generation: AeonSRHost.exe's present failed (0x%08X)",
+				diag_logf(DiagLevel::Warn, "framegen", L"frame generation: AlexaIncEnhancerHost.exe's present failed (0x%08X)",
 					static_cast<unsigned>(a.present_hr));
 			untrace();
 			lose_host(promised);
@@ -1436,7 +1436,7 @@ void OverlayPresenter::run()
 		stats_.host_gpu_class = host_ != nullptr ? host_->gpu_class() : -1;
 	}
 	diag_logf(DiagLevel::Info, "framegen", L"frame generation: its own window started, shown from %ls",
-		host_ != nullptr ? L"AeonSRHost.exe" : L"the game's process");
+		host_ != nullptr ? L"AlexaIncEnhancerHost.exe" : L"the game's process");
 	trace_quit_ = false;
 	trace_quit_event_ = CreateEventW(nullptr, TRUE, FALSE, nullptr);
 	trace_thread_ = std::thread([this] { trace_run(); });

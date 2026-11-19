@@ -1363,46 +1363,64 @@ const char *glyph(const char *icon)
 	return g_icons && icon != nullptr ? icon : "";
 }
 
-// AlexaInc branding: res/alexainc_logo.png is the official logo (replaces vector AeonSR mark).
-// Runtime loads it via panel.cpp banner if available; this vector fallback is kept for headless builds.
-void draw_logo(ImDrawList *dl, const ImVec2 &p, float size) // TODO: replace with ImGui::Image(g_alexainc_tex) when texture cache available
+// AlexaInc branding mark (from the AlexaInc SVG): open A, four network nodes,
+// an orbit ring and the orange core, on a dark rounded tile. Drawn with the
+// draw list so it needs no texture and works on every API.
+//   gradient  #63E7F5 -> #5EA7FF -> #8B5CF6   ring #5DE6F3 -> #A05CFF
+//   core      #FFB85C -> #FF7A45
+void draw_logo(ImDrawList *dl, const ImVec2 &p, float size)
 {
 	const float s = size / 48.0f;
 	const auto at = [&](float x, float y) { return ImVec2(p.x + x * s, p.y + y * s); };
-	const ImVec4 tile_top(0x27 / 255.0f, 0x27 / 255.0f, 0x2A / 255.0f, 1.0f);
-	const ImVec4 tile_bottom(0x09 / 255.0f, 0x09 / 255.0f, 0x0B / 255.0f, 1.0f);
-	const ImVec4 silver_light(1.0f, 1.0f, 1.0f, 1.0f);
-	const ImVec4 silver_dark(0xA1 / 255.0f, 0xA1 / 255.0f, 0xAA / 255.0f, 1.0f);
+	const ImVec4 tile_top(0x1A / 255.0f, 0x1E / 255.0f, 0x28 / 255.0f, 1.0f);
+	const ImVec4 tile_bottom(0x0B / 255.0f, 0x0D / 255.0f, 0x12 / 255.0f, 1.0f);
+	const ImVec4 cyan(0x63 / 255.0f, 0xE7 / 255.0f, 0xF5 / 255.0f, 1.0f);
+	const ImVec4 blue(0x5E / 255.0f, 0xA7 / 255.0f, 0xFF / 255.0f, 1.0f);
+	const ImVec4 violet(0x8B / 255.0f, 0x5C / 255.0f, 0xF6 / 255.0f, 1.0f);
+	const ImVec4 ring_a(0x5D / 255.0f, 0xE6 / 255.0f, 0xF3 / 255.0f, 1.0f);
+	const ImVec4 ring_b(0xA0 / 255.0f, 0x5C / 255.0f, 0xFF / 255.0f, 1.0f);
+	const ImVec4 core_a(1.0f, 0xB8 / 255.0f, 0x5C / 255.0f, 1.0f);
+	const ImVec4 core_b(1.0f, 0x7A / 255.0f, 0x45 / 255.0f, 1.0f);
 	const ImU32 white = IM_COL32(255, 255, 255, 255);
 
+	// tile
 	int first = dl->VtxBuffer.Size;
 	dl->AddRectFilled(at(0.0f, 0.0f), at(48.0f, 48.0f), white, 9.0f * s);
 	shade(dl, first, at(24.0f, 0.0f), at(24.0f, 48.0f), tile_top, tile_bottom);
+	dl->AddRect(at(0.0f, 0.0f), at(48.0f, 48.0f), IM_COL32(255, 255, 255, 22), 9.0f * s, 0,
+		std::max(1.0f, s));
 
+	// open A + network, on a 1024 grid scaled into the tile
+	const auto m = [&](float x, float y) { return at(4.0f + x * 0.039f, 3.0f + y * 0.039f); };
+	const float stroke = std::max(1.2f, 1.5f * s);
 	first = dl->VtxBuffer.Size;
-	const float arc_w = std::max(1.0f, 2.2f * s);
-	const ImVec2 centre = at(24.0f, 24.4122f);
-	dl->PathArcTo(centre, 16.0f * s, 2.5749f, 6.8499f, 48);
-	dl->PathStroke(white, ImDrawFlags_None, arc_w);
-	dl->AddCircleFilled(at(10.5f, 33.0f), arc_w * 0.5f, white, 12);
-	dl->AddCircleFilled(at(37.5f, 33.0f), arc_w * 0.5f, white, 12);
-	shade(dl, first, at(8.0f, 8.4f), at(40.0f, 33.0f), silver_light, silver_dark);
+	dl->PathLineTo(m(215.0f, 675.0f)); dl->PathLineTo(m(400.0f, 155.0f)); dl->PathLineTo(m(512.0f, 333.0f));
+	dl->PathLineTo(m(624.0f, 155.0f)); dl->PathLineTo(m(809.0f, 675.0f));
+	dl->PathStroke(white, ImDrawFlags_None, stroke);
+	dl->AddLine(m(215.0f, 675.0f), m(328.0f, 675.0f), white, stroke);
+	dl->AddLine(m(696.0f, 675.0f), m(809.0f, 675.0f), white, stroke);
+	dl->AddLine(m(451.0f, 472.0f), m(584.0f, 505.0f), white, stroke * 0.8f);
+	dl->AddLine(m(584.0f, 505.0f), m(636.0f, 649.0f), white, stroke * 0.8f);
+	shade(dl, first, m(215.0f, 155.0f), m(809.0f, 675.0f), cyan, violet);
 
+	// nodes
 	first = dl->VtxBuffer.Size;
-	const ImVec2 a[] = { at(24.0f, 4.0f), at(38.0f, 42.0f), at(32.0f, 39.0f), at(24.0f, 17.0f), at(16.0f, 39.0f),
-		at(10.0f, 42.0f) };
-	dl->AddConcavePolyFilled(a, 6, white);
-	shade(dl, first, at(10.0f, 4.0f), at(38.0f, 42.0f), silver_light, silver_dark);
+	dl->AddCircleFilled(m(512.0f, 333.0f), 1.05f * s, white, 12);
+	dl->AddCircleFilled(m(451.0f, 472.0f), 1.0f * s, white, 12);
+	dl->AddCircleFilled(m(584.0f, 505.0f), 1.0f * s, white, 12);
+	dl->AddCircleFilled(m(636.0f, 649.0f), 0.85f * s, white, 12);
+	shade(dl, first, m(451.0f, 333.0f), m(636.0f, 649.0f), blue, violet);
 
-	const float red_w = std::max(1.0f, 1.6f * s);
-	const ImU32 red = IM_COL32(0xEF, 0x44, 0x44, 255);
-	dl->AddLine(at(24.0f, 30.0f), at(24.0f, 41.0f), red, red_w);
-	dl->AddCircleFilled(at(24.0f, 30.0f), red_w * 0.5f, red, 8);
-	dl->AddCircleFilled(at(24.0f, 41.0f), red_w * 0.5f, red, 8);
+	// orbit ring, open at the top right
+	first = dl->VtxBuffer.Size;
+	dl->PathArcTo(m(512.0f, 650.0f), 5.6f * s, 2.2f, 5.6f, 28);
+	dl->PathStroke(white, ImDrawFlags_None, std::max(1.1f, 1.2f * s));
+	shade(dl, first, m(430.0f, 560.0f), m(620.0f, 740.0f), ring_a, ring_b);
 
-	const ImVec2 spark[] = { at(31.0f, 13.0f), at(32.0f, 17.0f), at(36.0f, 18.0f), at(32.0f, 19.0f), at(31.0f, 23.0f),
-		at(30.0f, 19.0f), at(26.0f, 18.0f), at(30.0f, 17.0f) };
-	dl->AddConcavePolyFilled(spark, 8, white);
+	// centre core
+	first = dl->VtxBuffer.Size;
+	dl->AddCircleFilled(m(512.0f, 650.0f), 1.5f * s, white, 14);
+	shade(dl, first, m(498.0f, 636.0f), m(528.0f, 664.0f), core_b, core_a);
 }
 
 void banner(const char *title, const char *subtitle)
